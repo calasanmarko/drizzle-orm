@@ -46,6 +46,7 @@ import type {
 	SelectedFields,
 	SetOperatorRightSelect,
 } from './select.types.ts';
+import { and } from '../expressions.ts';
 
 export class PgSelectBuilder<
 	TSelection extends SelectedFields | undefined,
@@ -660,6 +661,12 @@ export abstract class PgSelectQueryBuilderBase<
 				) as TSelection,
 			);
 		}
+
+		// Makes sure multiple `where` clauses get merged when using `$dynamic()`
+		if (this.config.where !== null) {
+			where = and(this.config.where, where);
+		}
+		
 		this.config.where = where;
 		return this as any;
 	}
